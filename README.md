@@ -11,4 +11,15 @@
 6) clicca su Show
 7) il programma aggiorna il prezzo e i dati ogni 10 secondi. Può essere più lento a seconda della connessione
 
+___________________________________________________________
+
+Zip con exe scaricabile da qui:
+
+https://drive.google.com/file/d/1gAH5qFCGeyHF3i_U-ibM-MlCfYtIS84M/view?usp=sharing
+
+1) estrarre lo zip
+2) lanciare l'exe dalla sottocartella "dist"
+
+___________________________________________________________
+
 DISCLAIMER: IL PROGRAMMA DOVREBBE FORNIRE UTILI INDICAZIONI DI ACQUISTO / VENDITA MA NON GARANTISCE IL SUCCESSO DELL'OPERAZIONE.
