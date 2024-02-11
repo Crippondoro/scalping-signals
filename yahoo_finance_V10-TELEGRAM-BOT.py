@@ -101,9 +101,9 @@ def load_file():
         with open(file_path, 'r') as file:
             for line in file:
                 asset, spread = line.strip().split(', ')
-                create_stock_window(asset, float(spread))
+                create_stock_window(asset, float(spread), auto_start=True)
 
-def create_stock_window(stock_symbol, spread):
+def create_stock_window(stock_symbol, spread, auto_start=True):
     stock_window = Toplevel(root)
     stock_window.title("Stock Monitor")
     
@@ -153,8 +153,8 @@ def create_stock_window(stock_symbol, spread):
     update_label = Label(stock_window, text="")
     update_label.grid(row=13, column=0, columnspan=4, pady=5)
 
-    # Avvia il monitoraggio automaticamente
-    update_stock_data(stock_symbol_entry.get(), float(spread_entry.get()) if spread_entry.get() else 0.0, result_var, ema_label, ema_5_label, rsi_5_label, bollinger_label, median_bollinger_label, rsi_label, stoch_label, buy_sell_label, update_label)
+    if auto_start:
+        update_stock_data(stock_symbol, spread, result_var, ema_label, ema_5_label, rsi_5_label, bollinger_label, median_bollinger_label, rsi_label, stoch_label, buy_sell_label, update_label)
 
 if __name__ == "__main__":
     # Invia messaggio di avvio del programma
