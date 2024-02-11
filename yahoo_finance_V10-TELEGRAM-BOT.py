@@ -103,7 +103,7 @@ def load_file():
                 asset, spread = line.strip().split(', ')
                 create_stock_window(asset, float(spread), auto_start=True)
 
-def create_stock_window(stock_symbol, spread, auto_start=True):
+def create_stock_window(stock_symbol, spread, auto_start=False):
     stock_window = Toplevel(root)
     stock_window.title("Stock Monitor")
     
