@@ -166,14 +166,40 @@ def update_stock_data(stock_symbol, spread, result_var, ema_label, ema_5_label, 
         stochastic_k, stochastic_d = calculate_stochastic_oscillator(info['Close'], info['High'], info['Low'], 14)
         stoch_label.config(text=f"Stochastic Oscillator (K/D) - IPERCOMPRATO > 80 / IPERVENDUTO < 20: {format(stochastic_k, ',.3f')} / {format(stochastic_d, ',.3f')}")
 
-        update_buy_sell_label_and_send_message(stock_symbol, buy_sell_label, last_price, ema_5, median_bollinger, ema, spread, rsi_5, rsi, stochastic_k, stochastic_d)
+        current_status, _ = suggestion(last_price, ema_5, median_bollinger, ema, spread)
+
+        # Verifica se lo stato attuale è diverso dallo stato precedente
+        if current_status != prev_status_dict[stock_symbol_normalized]:
+            buy_sell_label.config(text=current_status, fg="green" if current_status == "BUY" else "red" if current_status == "SELL" else "white")
+
+            # Verifica se lo stato attuale è "BUY" o "SELL" e se è confermato
+            if current_status in ["BUY", "SELL"] and current_status != confirmed_statuses.get(stock_symbol_normalized):
+                message = f"Status changed: {prev_status_dict[stock_symbol_normalized]} -> {current_status}\n\n"
+                message += f"Asset: {stock_symbol}\n"
+                message += f"Spread: {spread:.4f}\n"
+                message += f"Price: {last_price:.4f}\n"
+                message += f"EMA(5): {ema_5:.3f}\n"
+                message += f"Median Bollinger: {median_bollinger:.3f}\n"
+                message += f"EMA(40): {ema:.3f}\n"
+                message += f"RSI(5) 70/30: {rsi_5:.3f}\n"
+                message += f"RSI(20) 70/30: {rsi:.3f}\n"
+                message += f"Stochastic (K/D) 80/20: {stochastic_k:.3f} / {stochastic_d:.3f}\n"
+                message += f"Update Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+
+                send_telegram_message(message)
+                confirmed_statuses[stock_symbol_normalized] = current_status
+
+        # Aggiorna lo stato precedente solo se lo stato attuale non è "NEUTRAL"
+        if current_status != "NEUTRAL":
+            prev_status_dict[stock_symbol_normalized] = current_status
 
         update_label.config(text="Ultimo aggiornamento: {}".format(time.strftime("%H:%M:%S")))
-
         root.after(10000, lambda: update_stock_data(stock_symbol, spread, result_var, ema_label, ema_5_label, rsi_5_label, bollinger_label, median_bollinger_label, rsi_label, stoch_label, buy_sell_label, update_label))
+
     except Exception as e:
         print(f"Error updating stock data for {stock_symbol}: {e}")
         update_label.config(text="Errore durante l'aggiornamento")
+
 
 def update_all_stocks():
     for stock_symbol in prev_status_dict.keys():
