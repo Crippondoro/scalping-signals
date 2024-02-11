@@ -36,7 +36,7 @@ def calculate_stochastic_oscillator(close_prices, high_prices, low_prices, windo
 
 def stock_price(stock_symbol, spread, result_var, ema_label, ema_5_label, rsi_5_label, bollinger_label, median_bollinger_label, rsi_label, stoch_label, buy_sell_label, update_label, update_time):
     stock = yf.Ticker(stock_symbol)
-    info = stock.history(period='1d', interval='5m') 
+    info = stock.history(period='3d', interval='5m') 
     last_price = info['Close'].iloc[-1] if not info.empty else "N/A"
     result_var.set("{:,.3f}".format(last_price))
 
