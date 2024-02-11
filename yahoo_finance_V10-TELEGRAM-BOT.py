@@ -59,41 +59,23 @@ def send_startup_message():
     for stock_symbol in prev_status_dict.keys():
         stock_price(stock_symbol, 0.0, StringVar(), Label(), Label(), Label(), Label(), Label(), Label(), Label(), Label(), Label(), Label(), Label())
         stock_symbol_normalized = stock_symbol.replace(".", "_").replace("^", "_")
-        update_buy_sell_label_and_send_message(stock_symbol_normalized, Label(), float("N/A"), float("N/A"), float("N/A"), float("N/A"), 0.0, float("N/A"), float("N/A"), float("N/A"), float("N/A"))
+        update_buy_sell_label(stock_symbol_normalized, Label(), float("N/A"), float("N/A"), float("N/A"), float("N/A"), 0.0, float("N/A"), float("N/A"), float("N/A"), float("N/A"))
 
-def update_buy_sell_label_and_send_message(stock_symbol, buy_sell_label, last_price, ema_5, median_bollinger, ema, spread, rsi_5, rsi, stochastic_k, stochastic_d):
-    stock_symbol_normalized = stock_symbol.replace(".", "_").replace("^", "_")
-
-    if stock_symbol_normalized not in prev_status_dict:
-        prev_status_dict[stock_symbol_normalized] = "NEUTRAL"
+def update_buy_sell_label(stock_symbol, buy_sell_label, last_price, ema_5, median_bollinger, ema, spread, rsi_5, rsi, stochastic_k, stochastic_d):
+    if stock_symbol not in prev_status_dict:
+        prev_status_dict[stock_symbol] = "NEUTRAL"
 
     current_status, _ = suggestion(last_price, ema_5, median_bollinger, ema, spread)
     buy_sell_label.config(text=current_status, fg="green" if current_status == "BUY" else "red" if current_status == "SELL" else "white")
 
-    if current_status != prev_status_dict[stock_symbol_normalized]:
-        if current_status in ["BUY", "SELL"] and current_status != confirmed_statuses.get(stock_symbol_normalized):
-            message = f"Status changed: {prev_status_dict[stock_symbol_normalized]} -> {current_status}\n\n"
-            message += f"Asset: {stock_symbol}\n"
-            message += f"Spread: {spread:.4f}\n"
-            message += f"Price: {last_price:.4f}\n"
-            message += f"EMA(5): {ema_5:.3f}\n"
-            message += f"Median Bollinger: {median_bollinger:.3f}\n"
-            message += f"EMA(40): {ema:.3f}\n"
-            message += f"RSI(5) 70/30: {rsi_5:.3f}\n"
-            message += f"RSI(20) 70/30: {rsi:.3f}\n"
-            message += f"Stochastic (K/D) 80/20: {stochastic_k:.3f} / {stochastic_d:.3f}\n"
-            message += f"Update Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-
-            print(f"Sending message: {message}")
-            print(f"Debug - current_spread: {spread}")
-
-            send_telegram_message(message)
-            confirmed_statuses[stock_symbol_normalized] = current_status
+    if current_status != prev_status_dict[stock_symbol]:
+        if current_status in ["BUY", "SELL"] and current_status != confirmed_statuses.get(stock_symbol):
+            confirmed_statuses[stock_symbol] = current_status
 
     if current_status == "NEUTRAL":
-        confirmed_statuses.pop(stock_symbol_normalized, None)
+        confirmed_statuses.pop(stock_symbol, None)
 
-    prev_status_dict[stock_symbol_normalized] = current_status
+    prev_status_dict[stock_symbol] = current_status
 
 def stock_price(stock_symbol, spread, result_var, ema_label, ema_5_label, rsi_5_label, bollinger_label, median_bollinger_label, rsi_label, stoch_label, buy_sell_label, update_label):
     stock = yf.Ticker(stock_symbol)
@@ -126,7 +108,7 @@ def stock_price(stock_symbol, spread, result_var, ema_label, ema_5_label, rsi_5_
     stochastic_k, stochastic_d = calculate_stochastic_oscillator(info['Close'], info['High'], info['Low'], 14)
     stoch_label.config(text=f"Stochastic Oscillator (K/D) - IPERCOMPRATO > 80 / IPERVENDUTO < 20: {format(stochastic_k, ',.3f')} / {format(stochastic_d, ',.3f')}")
 
-    update_buy_sell_label_and_send_message(stock_symbol, buy_sell_label, last_price, ema_5, median_bollinger, ema, spread, rsi_5, rsi, stochastic_k, stochastic_d)
+    update_buy_sell_label(stock_symbol, buy_sell_label, last_price, ema_5, median_bollinger, ema, spread, rsi_5, rsi, stochastic_k, stochastic_d)
 
     update_label.config(text="Ultimo aggiornamento: {}".format(time.strftime("%H:%M:%S")))
 
@@ -164,7 +146,7 @@ def update_stock_data(stock_symbol, spread, result_var, ema_label, ema_5_label, 
         stochastic_k, stochastic_d = calculate_stochastic_oscillator(info['Close'], info['High'], info['Low'], 14)
         stoch_label.config(text=f"Stochastic Oscillator (K/D) - IPERCOMPRATO > 80 / IPERVENDUTO < 20: {format(stochastic_k, ',.3f')} / {format(stochastic_d, ',.3f')}")
 
-        update_buy_sell_label_and_send_message(stock_symbol, buy_sell_label, last_price, ema_5, median_bollinger, ema, spread, rsi_5, rsi, stochastic_k, stochastic_d)
+        update_buy_sell_label(stock_symbol, buy_sell_label, last_price, ema_5, median_bollinger, ema, spread, rsi_5, rsi, stochastic_k, stochastic_d)
 
         update_label.config(text="Ultimo aggiornamento: {}".format(time.strftime("%H:%M:%S")))
 
@@ -288,4 +270,3 @@ if __name__ == "__main__":
     threading.Thread(target=update_all_stocks).start()
 
     root.mainloop()
-
